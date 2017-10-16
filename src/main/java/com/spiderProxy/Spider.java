@@ -52,8 +52,8 @@ public class Spider {
         while (true) {
             final String url = this.repositoryable.pull();
             if (StringUtils.isNotEmpty(url)) {
-                executor.execute(new Runnable() {
-                    public void run() {
+//                executor.execute(new Runnable() {
+//                    public void run() {
                         Page page = Spider.this.download(url);
                         if (StringUtils.isNotEmpty(page.getContext())) {
                             Spider.this.process(page);
@@ -64,11 +64,12 @@ public class Spider {
                             for (String proxy : proxyList) {
                                 Spider.this.storeable.storeProxy(proxy);
                             }
-                        }else{
-                            logger.info("页面下载出现异常，将未下载成功的url重新进行下载，url:{}",page.getUrl());
+                        } else {
+                            Spider.this.addUrl(page.getUrl());
+                            logger.error("页面下载出现异常，将未下载成功的url重新进行下载，url:{}", page.getUrl());
                         }
-                    }
-                });
+//                    }
+//                });
                 SleepUtils.sleep(Config.million_1);
             } else {
                 logger.warn("没有url了");
@@ -96,6 +97,7 @@ public class Spider {
     public void process(Page page) {
         this.processable.process(page);
     }
+
     /**
      * 启动前，配置检查
      */

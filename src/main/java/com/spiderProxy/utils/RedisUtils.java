@@ -5,7 +5,9 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class RedisUtils {
 
@@ -26,22 +28,32 @@ public class RedisUtils {
 
     public List<String> lrange(String key, int start, int end) {
         Jedis resource = jedisPool.getResource();
-        List<String> list = resource.lrange(key, start, end);
-        resource.close();
-        return list;
+        Set<String> smembers = resource.smembers(key);
+        return Arrays.asList(smembers.toArray(new String[smembers.size()]));
     }
-
-    public synchronized void add(String lowKey, String url) {
+    public  void add(String lowKey, String url) {
         Jedis resource = jedisPool.getResource();
-        resource.lpush(lowKey, url);
+        resource.sadd(lowKey, url);
         resource.close();
     }
 
-    public synchronized String pull(String key) {
+    public  String pull(String key) {
         Jedis resource = jedisPool.getResource();
-        String result = resource.rpop(key);
+        String result = resource.spop(key);
         resource.close();
         return result;
     }
+//public void add(String lowKey, String url) {
+//    Jedis resource = jedisPool.getResource();
+//    resource.lpush(lowKey, url);
+//    resource.close();
+//}
+//    public String pull(String key) {
+//        Jedis resource = jedisPool.getResource();
+//        String result = resource.rpop(key);
+//        resource.close();
+//        return result;
+//    }
+
 
 }
